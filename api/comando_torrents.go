@@ -226,16 +226,20 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				Year:          year,
 				IMDb:          imdb,
 				Audio:         magnetAudio,
-				MagnetLink:    magnetLink,
 				Date:          date,
+				Size:          mySize,
+				TorrentInfo: TorrentInfo{
+					MagnetLink:    magnetLink,
 					InfoHash:      infoHash,
 					Trackers:      trackers,
+					TrackersCount: len(trackers),
 					LeechCount:    peer,
 					SeedCount:     seed,
-				Size:          mySize,
+				},
 			}
 			chanIndexedTorrent <- ixt
 		}(it, magnetLink)
+
 	}
 
 	for i := 0; i < len(magnetLinks); i++ {
