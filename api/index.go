@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/felipemarinho97/torrent-indexer/cache"
-	"github.com/felipemarinho97/torrent-indexer/schema"
+	"github.com/ruizlenato/torrent-indexer/cache"
+	"github.com/ruizlenato/torrent-indexer/schema"
 )
 
 type Indexer struct {
@@ -28,10 +28,7 @@ type IndexedTorrent struct {
 	IMDb          string         `json:"imdb,omitempty"`
 	Year          string         `json:"year"`
 	Audio         []schema.Audio `json:"audio"`
-	MagnetLink    string         `json:"magnet_link"`
 	Date          time.Time      `json:"date"`
-	InfoHash      string         `json:"info_hash"`
-	Trackers      []string       `json:"trackers"`
 	Size          string         `json:"size,omitempty"`
 	LeechCount    int            `json:"leech_count,omitempty"`
 	SeedCount     int            `json:"seed_count,omitempty"`

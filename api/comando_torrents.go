@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/felipemarinho97/torrent-indexer/magnet"
-	"github.com/felipemarinho97/torrent-indexer/schema"
-	goscrape "github.com/felipemarinho97/torrent-indexer/scrape"
+	"github.com/ruizlenato/torrent-indexer/magnet"
+	"github.com/ruizlenato/torrent-indexer/schema"
+	goscrape "github.com/ruizlenato/torrent-indexer/scrape"
 )
 
 var comando = IndexerMeta{
@@ -228,10 +228,10 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				Audio:         magnetAudio,
 				MagnetLink:    magnetLink,
 				Date:          date,
-				InfoHash:      infoHash,
-				Trackers:      trackers,
-				LeechCount:    peer,
-				SeedCount:     seed,
+					InfoHash:      infoHash,
+					Trackers:      trackers,
+					LeechCount:    peer,
+					SeedCount:     seed,
 				Size:          mySize,
 			}
 			chanIndexedTorrent <- ixt

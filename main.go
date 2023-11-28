@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	handler "github.com/felipemarinho97/torrent-indexer/api"
-	"github.com/felipemarinho97/torrent-indexer/cache"
+	handler "github.com/ruizlenato/torrent-indexer/api"
+	"github.com/ruizlenato/torrent-indexer/cache"
 )
 
 func main() {

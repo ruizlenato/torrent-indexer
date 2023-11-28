@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/felipemarinho97/torrent-indexer/schema"
+	"github.com/ruizlenato/torrent-indexer/schema"
 )
 
 func Test_findAudioFromText(t *testing.T) {

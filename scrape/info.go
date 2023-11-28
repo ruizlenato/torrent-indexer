@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/felipemarinho97/torrent-indexer/cache"
+	"github.com/ruizlenato/torrent-indexer/cache"
 )
 
 type peers struct {
