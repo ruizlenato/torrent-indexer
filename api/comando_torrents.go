@@ -165,6 +165,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 		if strings.Contains(text, "INFORMAÇÕES") {
 			ogtitle = findoOgTitleFromText(text)
 			imdb = findIMDbFromText(text)
+			year = findYearFromText(text)
 			quality = findQualityFromText(text)
 		}
 
@@ -323,18 +324,13 @@ func findoOgTitleFromText(text string) (ogtitle string) {
 	return ogtitle
 }
 
+func findYearFromText(text string) (year string) {
+	re := regexp.MustCompile(`Lançamento:[  ](.*)`)
 	yearMatch := re.FindStringSubmatch(text)
 	if len(yearMatch) > 0 {
 		year = yearMatch[1]
 	}
 
-	if year == "" {
-		re = regexp.MustCompile(`\((\d{4})\)`)
-		yearMatch := re.FindStringSubmatch(title)
-		if len(yearMatch) > 0 {
-			year = yearMatch[1]
-		}
-	}
 	return year
 }
 
