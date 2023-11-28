@@ -111,7 +111,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 	}
 
 	article := doc.Find("article")
-	title := strings.Replace(article.Find(".entry-title").Text(), " - Download", "", -1)
+	title := strings.Replace(article.Find(".entry-title").Text(), " - Torrent Download", "", -1)
 	textContent := article.Find("div.entry-content")
 	// div itemprop="datePublished"
 	datePublished := strings.TrimSpace(article.Find("div[itemprop=\"datePublished\"]").Text())
@@ -137,6 +137,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 	})
 
 	var audio []schema.Audio
+	var ogtitle string
 	var imdb string
 	var year string
 	var size []string
@@ -161,6 +162,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 
 		audio = append(audio, findAudioFromText(text)...)
 		if strings.Contains(text, "INFORMAÇÕES") {
+			ogtitle = findoOgTitleFromText(text)
 			imdb = findIMDbFromText(text)
 		}
 		year = findYearFromText(text, title)
@@ -210,8 +212,8 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 			}
 
 			ixt := IndexedTorrent{
-				Title:         appendAudioISO639_2Code(releaseTitle, magnetAudio),
-				OriginalTitle: title,
+				Title:         title,
+				OriginalTitle: ogtitle,
 				Details:       link,
 				Year:          year,
 				IMDb:          imdb,
@@ -281,8 +283,18 @@ func findIMDbFromText(text string) (imdb string) {
 	return imdb
 }
 
-func findYearFromText(text string, title string) (year string) {
-	re := regexp.MustCompile(`Lançamento: (.*)`)
+func findoOgTitleFromText(text string) (ogtitle string) {
+	re := regexp.MustCompile(`(?i)(T[íi]tulo original|Baixar Filme): (.*)`)
+	ogtitleMatch := re.FindStringSubmatch(text)
+	if len(ogtitleMatch) > 0 {
+		ogtitle = ogtitleMatch[2]
+	} else {
+		ogtitle = "Not Found"
+	}
+
+	return ogtitle
+}
+
 	yearMatch := re.FindStringSubmatch(text)
 	if len(yearMatch) > 0 {
 		year = yearMatch[1]
@@ -332,13 +344,9 @@ func findSizesFromText(text string) []string {
 }
 
 func processTitle(title string, a []schema.Audio) string {
-	// remove ' - Donwload' from title
-	title = strings.Replace(title, " – Download", "", -1)
+	re := regexp.MustCompile(`(?m)(BluRay|WEB-DL).+(0p )(.*)`)
+	title = re.ReplaceAllString(title, "")
 
-	// remove 'comando.la' from title
-	title = strings.Replace(title, "comando.la", "", -1)
-
-	// add audio ISO 639-2 code to title between ()
 	title = appendAudioISO639_2Code(title, a)
 
 	return title
@@ -350,7 +358,7 @@ func appendAudioISO639_2Code(title string, a []schema.Audio) string {
 		for _, lang := range a {
 			audio = append(audio, lang.String())
 		}
-		title = fmt.Sprintf("%s (%s)", title, strings.Join(audio, ", "))
+		title = fmt.Sprintf("%s(%s)", title, strings.Join(audio, ", "))
 	}
 	return title
 }
