@@ -140,6 +140,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 	var ogtitle string
 	var imdb string
 	var year string
+	var quality string
 	var size []string
 	article.Find("div.entry-content > p").Each(func(i int, s *goquery.Selection) {
 		// pattern:
@@ -164,8 +165,9 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 		if strings.Contains(text, "INFORMAÇÕES") {
 			ogtitle = findoOgTitleFromText(text)
 			imdb = findIMDbFromText(text)
+			quality = findQualityFromText(text)
 		}
-		year = findYearFromText(text, title)
+
 		size = append(size, findSizesFromText(text)...)
 	})
 
@@ -182,6 +184,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				fmt.Println(err)
 			}
 			releaseTitle := magnet.DisplayName
+			quality := fmt.Sprintf("%s %s", quality, findResFromTitle(releaseTitle))
 			infoHash := magnet.InfoHash.String()
 			trackers := magnet.Trackers
 			magnetAudio := []schema.Audio{}
@@ -214,6 +217,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 			ixt := IndexedTorrent{
 				Title:         title,
 				OriginalTitle: ogtitle,
+				Quality:       quality,
 				Details:       link,
 				Year:          year,
 				IMDb:          imdb,
@@ -268,6 +272,30 @@ func stableUniq(s []string) []string {
 	}
 
 	return uniqValues
+}
+
+func findResFromTitle(title string) (res string) {
+	if strings.Contains(title, "720p") {
+		res = "720p"
+	}
+	if strings.Contains(title, "1080p") {
+		res = "1080p"
+	}
+	if strings.Contains(title, "2160p") || strings.Contains(title, "4k") {
+		res = "2160p"
+	}
+
+	return res
+}
+
+func findQualityFromText(text string) (quality string) {
+	re := regexp.MustCompile(`Qualidade:[  ](BluRay|WEB\S+)`)
+	qualityMatch := re.FindStringSubmatch(text)
+	if len(qualityMatch) > 0 {
+		quality = qualityMatch[1]
+	}
+
+	return quality
 }
 
 func findIMDbFromText(text string) (imdb string) {
