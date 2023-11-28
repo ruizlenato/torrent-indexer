@@ -21,6 +21,8 @@ type IndexerMeta struct {
 type IndexedTorrent struct {
 	Title         string         `json:"title"`
 	OriginalTitle string         `json:"original_title"`
+	Season        string         `json:"season,omitempty"`
+	Episode       string         `json:"episode,omitempty"`
 	Quality       string         `json:"quality,omitempty"`
 	Details       string         `json:"details"`
 	IMDb          string         `json:"imdb,omitempty"`
@@ -30,7 +32,7 @@ type IndexedTorrent struct {
 	Date          time.Time      `json:"date"`
 	InfoHash      string         `json:"info_hash"`
 	Trackers      []string       `json:"trackers"`
-	Size          string         `json:"size"`
+	Size          string         `json:"size,omitempty"`
 	LeechCount    int            `json:"leech_count,omitempty"`
 	SeedCount     int            `json:"seed_count,omitempty"`
 }

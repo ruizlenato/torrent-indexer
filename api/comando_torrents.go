@@ -185,6 +185,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				fmt.Println(err)
 			}
 			releaseTitle := magnet.DisplayName
+			episode, season := findEpisodeFromTitle(releaseTitle)
 			quality := fmt.Sprintf("%s %s", quality, findResFromTitle(releaseTitle))
 			infoHash := magnet.InfoHash.String()
 			trackers := magnet.Trackers
@@ -218,6 +219,8 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 			ixt := IndexedTorrent{
 				Title:         title,
 				OriginalTitle: ogtitle,
+				Episode:       episode,
+				Season:        season,
 				Quality:       quality,
 				Details:       link,
 				Year:          year,
@@ -274,7 +277,16 @@ func stableUniq(s []string) []string {
 
 	return uniqValues
 }
+func findEpisodeFromTitle(title string) (season string, episode string) {
+	re := regexp.MustCompile(`S(\d+)E(\d+)`)
+	episodeMatch := re.FindStringSubmatch(title)
+	if len(episodeMatch) > 0 {
+		season = episodeMatch[1]
+		episode = episodeMatch[2]
+	}
 
+	return season, episode
+}
 func findResFromTitle(title string) (res string) {
 	if strings.Contains(title, "720p") {
 		res = "720p"
@@ -369,6 +381,7 @@ func findSizesFromText(text string) []string {
 func processTitle(title string, a []schema.Audio) string {
 	re := regexp.MustCompile(`(?m)(BluRay|WEB-DL).+(0p )(.*)`)
 	title = re.ReplaceAllString(title, "")
+	title = (regexp.MustCompile(`(?m)Dual.+`)).ReplaceAllString(title, "")
 
 	title = appendAudioISO639_2Code(title, a)
 
