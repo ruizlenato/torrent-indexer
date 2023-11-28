@@ -300,13 +300,12 @@ func findQualityFromText(text string) (quality string) {
 }
 
 func findIMDbFromText(text string) (imdb string) {
-	fmt.Print(text)
 	re := regexp.MustCompile(`IMDb: (.+\d)`)
 	imdbMatch := re.FindStringSubmatch(text)
 	if len(imdbMatch) > 0 {
 		imdb = imdbMatch[1]
 	} else {
-		imdb = "Not Found"
+		imdb = ""
 	}
 
 	return imdb

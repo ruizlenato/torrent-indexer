@@ -31,8 +31,8 @@ type IndexedTorrent struct {
 	InfoHash      string         `json:"info_hash"`
 	Trackers      []string       `json:"trackers"`
 	Size          string         `json:"size"`
-	LeechCount    int            `json:"leech_count"`
-	SeedCount     int            `json:"seed_count"`
+	LeechCount    int            `json:"leech_count,omitempty"`
+	SeedCount     int            `json:"seed_count,omitempty"`
 }
 
 func NewIndexers(redis *cache.Redis) *Indexer {
@@ -51,13 +51,6 @@ func HandlerIndex(w http.ResponseWriter, r *http.Request) {
 			"/indexers/comando_torrents": map[string]interface{}{
 				"method":      "GET",
 				"description": "Indexer for comando torrents",
-				"query_params": map[string]string{
-					"q": "search query",
-				},
-			},
-			"/indexers/bludv": map[string]interface{}{
-				"method":      "GET",
-				"description": "Indexer for bludv",
 				"query_params": map[string]string{
 					"q": "search query",
 				},
