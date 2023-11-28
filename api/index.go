@@ -22,6 +22,7 @@ type IndexedTorrent struct {
 	Title         string         `json:"title"`
 	OriginalTitle string         `json:"original_title"`
 	Details       string         `json:"details"`
+	IMDb          string         `json:"imdb,omitempty"`
 	Year          string         `json:"year"`
 	Audio         []schema.Audio `json:"audio"`
 	MagnetLink    string         `json:"magnet_link"`

@@ -137,6 +137,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 	})
 
 	var audio []schema.Audio
+	var imdb string
 	var year string
 	var size []string
 	article.Find("div.entry-content > p").Each(func(i int, s *goquery.Selection) {
@@ -159,6 +160,9 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 		text := s.Text()
 
 		audio = append(audio, findAudioFromText(text)...)
+		if strings.Contains(text, "INFORMAÇÕES") {
+			imdb = findIMDbFromText(text)
+		}
 		year = findYearFromText(text, title)
 		size = append(size, findSizesFromText(text)...)
 	})
@@ -210,6 +214,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				OriginalTitle: title,
 				Details:       link,
 				Year:          year,
+				IMDb:          imdb,
 				Audio:         magnetAudio,
 				MagnetLink:    magnetLink,
 				Date:          date,
@@ -261,6 +266,19 @@ func stableUniq(s []string) []string {
 	}
 
 	return uniqValues
+}
+
+func findIMDbFromText(text string) (imdb string) {
+	fmt.Print(text)
+	re := regexp.MustCompile(`IMDb: (.+\d)`)
+	imdbMatch := re.FindStringSubmatch(text)
+	if len(imdbMatch) > 0 {
+		imdb = imdbMatch[1]
+	} else {
+		imdb = "Not Found"
+	}
+
+	return imdb
 }
 
 func findYearFromText(text string, title string) (year string) {
