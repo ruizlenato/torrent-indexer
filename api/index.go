@@ -30,16 +30,15 @@ type IndexedTorrent struct {
 	Year          string         `json:"year"`
 	Audio         []schema.Audio `json:"audio"`
 	Date          time.Time      `json:"date"`
-	Size          string         `json:"size,omitempty"`
+	Size          string         `json:"size"`
 	TorrentInfo   TorrentInfo    `json:"torrent_info"`
 }
 type TorrentInfo struct {
-	MagnetLink    string   `json:"magnet_link"`
-	InfoHash      string   `json:"info_hash"`
-	Trackers      []string `json:"trackers"`
-	TrackersCount int      `json:"trackers_count,omitempty"`
-	LeechCount    int      `json:"leech_count,omitempty"`
-	SeedCount     int      `json:"seed_count,omitempty"`
+	MagnetLink string   `json:"magnet_link"`
+	InfoHash   string   `json:"info_hash"`
+	Trackers   []string `json:"trackers"`
+	Leechers   int      `json:"leechers,omitempty"`
+	Seeders    int      `json:"seeders,omitempty"`
 }
 
 func NewIndexers(redis *cache.Redis) *Indexer {

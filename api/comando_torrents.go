@@ -243,12 +243,11 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				Date:          date,
 				Size:          mySize,
 				TorrentInfo: TorrentInfo{
-					MagnetLink:    magnetLink,
-					InfoHash:      infoHash,
-					Trackers:      trackers,
-					TrackersCount: len(trackers),
-					LeechCount:    peer,
-					SeedCount:     seed,
+					MagnetLink: magnetLink,
+					InfoHash:   infoHash,
+					Trackers:   trackers,
+					Leechers:   peer,
+					Seeders:    seed,
 				},
 			}
 			chanIndexedTorrent <- ixt
@@ -260,7 +259,6 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 		it := <-chanIndexedTorrent
 		indexedTorrents = append(indexedTorrents, it)
 	}
-
 	return indexedTorrents, nil
 }
 
@@ -320,12 +318,11 @@ func findResFromTitle(title string) (res string) {
 }
 
 func findQualityFromText(text string) (quality string) {
-	re := regexp.MustCompile(`Qualidade:[  ](BluRay|WEB\S+)`)
+	re := regexp.MustCompile(`Qualidade:[  ](BluRay|CAMRip|HDTV|WEB\S+)`)
 	qualityMatch := re.FindStringSubmatch(text)
 	if len(qualityMatch) > 0 {
 		quality = qualityMatch[1]
 	}
-
 	return quality
 }
 
@@ -342,7 +339,7 @@ func findIMDbFromText(text string) (imdb string) {
 }
 
 func findoOgTitleFromText(text string) (ogtitle string) {
-	re := regexp.MustCompile(`(?i)(T[íi]tulo original|Baixar Filme): (.*)`)
+	re := regexp.MustCompile(`(?i)(T[íi]tulo original|Nome Ori.+|Baixar .+): (.*)`)
 	ogtitleMatch := re.FindStringSubmatch(text)
 	if len(ogtitleMatch) > 0 {
 		ogtitle = ogtitleMatch[2]
@@ -365,7 +362,7 @@ func findYearFromText(text string) (year string) {
 
 func findAudioFromText(text string) []schema.Audio {
 	var audio []schema.Audio
-	re := regexp.MustCompile(`(.udio|Idioma):.?(.*)`)
+	re := regexp.MustCompile(`(?m)^([ÁA]udio|[IÍ]dioma):.?(.*)`)
 	audioMatch := re.FindStringSubmatch(text)
 	if len(audioMatch) > 0 {
 		sep := getSeparator(audioMatch[2])
@@ -434,6 +431,8 @@ func getSeparator(s string) string {
 		return "|"
 	} else if strings.Contains(s, ",") {
 		return ","
+	} else if strings.Contains(s, "&") {
+		return "&"
 	}
 	return " "
 }
