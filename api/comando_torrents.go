@@ -141,6 +141,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 	var imdb string
 	var year string
 	var quality string
+	var category int
 	var size []string
 	article.Find("div.entry-content > p").Each(func(i int, s *goquery.Selection) {
 		// pattern:
@@ -186,6 +187,18 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 			}
 			releaseTitle := magnet.DisplayName
 			episode, season := findEpisodeFromTitle(releaseTitle)
+			if episode != "" {
+				category = 2
+			} else {
+				seasonMatch := (regexp.MustCompile(`(?mi)[0-9](ª|º).+(Temporada|Season)`)).FindStringSubmatch(title)
+				if len(seasonMatch) > 0 {
+					season = seasonMatch[0]
+					category = 2
+				} else {
+					category = 1
+				}
+
+			}
 			quality := fmt.Sprintf("%s %s", quality, findResFromTitle(releaseTitle))
 			infoHash := magnet.InfoHash.String()
 			trackers := magnet.Trackers
@@ -208,7 +221,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 				fmt.Println(err)
 			}
 
-			title := processTitle(title, magnetAudio)
+			title := processTitle(title, magnetAudio, quality, episode, season)
 
 			// if the number of sizes is equal to the number of magnets, then assign the size to each indexed torrent in order
 			var mySize string
@@ -219,6 +232,7 @@ func getTorrents(ctx context.Context, i *Indexer, link string) ([]IndexedTorrent
 			ixt := IndexedTorrent{
 				Title:         title,
 				OriginalTitle: ogtitle,
+				Category:      category,
 				Episode:       episode,
 				Season:        season,
 				Quality:       quality,
@@ -382,23 +396,35 @@ func findSizesFromText(text string) []string {
 	return sizes
 }
 
-func processTitle(title string, a []schema.Audio) string {
-	re := regexp.MustCompile(`(?m)(BluRay|WEB-DL).+(0p )(.*)`)
-	title = re.ReplaceAllString(title, "")
-	title = (regexp.MustCompile(`(?m)Dual.+`)).ReplaceAllString(title, "")
+func processTitle(title string, a []schema.Audio, quality string, episode string, season string) (year string) {
+	title = (regexp.MustCompile(`(?mi)(:? )(BluRay|WEB-DL|HDTV).+(0p )(.*)`)).ReplaceAllString(title, "")
+	title = (regexp.MustCompile(`(?mi)(:? )(Dual|Legendado|Dublado).+`)).ReplaceAllString(title, "")
+	yearMatch := (regexp.MustCompile(`(?mi)\([0-9]{4}\)`)).FindStringSubmatch(title)
+	if yearMatch != nil {
+		year = yearMatch[0]
+	}
+	title = (regexp.MustCompile((`(?mi)(:? )\([0-9]{4}\)`))).ReplaceAllString(title, "")
+	title = (regexp.MustCompile(`(?mi)(:? )[0-9](ª|º).+(Temporada|Season).+`)).ReplaceAllString(title, "")
 
-	title = appendAudioISO639_2Code(title, a)
+	title = appendAudioISO639_2Code(title, a, quality, year, episode, season)
 
 	return title
 }
 
-func appendAudioISO639_2Code(title string, a []schema.Audio) string {
+func appendAudioISO639_2Code(title string, a []schema.Audio, quality string, year string, episode string, season string) string {
 	if len(a) > 0 {
 		audio := []string{}
 		for _, lang := range a {
 			audio = append(audio, lang.String())
 		}
-		title = fmt.Sprintf("%s(%s)", title, strings.Join(audio, ", "))
+		if season != "" {
+			if episode == "" {
+				title = fmt.Sprintf("%s %s", title, season)
+			} else {
+				title = fmt.Sprintf("%s S%sE%s", title, season, episode)
+			}
+		}
+		title = fmt.Sprintf("%s %s (%s) (%s)", title, year, quality, strings.Join(audio, ", "))
 	}
 	return title
 }

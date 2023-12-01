@@ -21,6 +21,7 @@ type IndexerMeta struct {
 type IndexedTorrent struct {
 	Title         string         `json:"title"`
 	OriginalTitle string         `json:"original_title"`
+	Category      int            `json:"category"`
 	Season        string         `json:"season,omitempty"`
 	Episode       string         `json:"episode,omitempty"`
 	Quality       string         `json:"quality,omitempty"`
